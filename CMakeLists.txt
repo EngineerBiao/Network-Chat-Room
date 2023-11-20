@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.0)
+project(NetworkChatRoom)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(SRC_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/src/server.c)
+set(SRC_CLIENT ${CMAKE_CURRENT_SOURCE_DIR}/src/client.c)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+add_executable(server ${SRC_SERVER})
+add_executable(client ${SRC_CLIENT})
+

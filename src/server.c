@@ -7,8 +7,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h> // POSIX线程库，由于该库不是Linux默认库，所以要在编译时加-lpthread参数才能完成链接
-
-#define SERVER_PORT 9527 // 服务器端口号
+#include "chat.h"
 
 void sys_err(const char *str)
 {

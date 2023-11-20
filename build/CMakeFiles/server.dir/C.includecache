@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../inc/chat.h
+
+/home/biao/tcp-socket/2网络聊天室/src/server.c
+stdio.h
+-
+stdlib.h
+-
+errno.h
+-
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+unistd.h
+-
+arpa/inet.h
+-
+pthread.h
+-
+chat.h
+/home/biao/tcp-socket/2网络聊天室/src/chat.h
+
