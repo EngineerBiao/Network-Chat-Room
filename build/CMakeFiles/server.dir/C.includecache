@@ -6,27 +6,17 @@
 
 #IncludeRegexTransform: 
 
-../inc/chat.h
+../inc/data.h
 
-/home/biao/tcp-socket/2网络聊天室/src/server.c
+/home/biao/tcp-socket/2网络聊天室/src/data.c
 stdio.h
 -
 stdlib.h
 -
-errno.h
+sqlite3.h
 -
-sys/types.h
+string.h
 -
-sys/socket.h
--
-netinet/in.h
--
-unistd.h
--
-arpa/inet.h
--
-pthread.h
--
-chat.h
-/home/biao/tcp-socket/2网络聊天室/src/chat.h
+data.h
+/home/biao/tcp-socket/2网络聊天室/src/data.h
 

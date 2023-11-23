@@ -8,6 +8,11 @@
 #include <arpa/inet.h>
 #include <pthread.h> // POSIX线程库，由于该库不是Linux默认库，所以要在编译时加-lpthread参数才能完成链接
 #include "chat.h"
+#include "data.h"
+
+void registe(int fd, struct Message *msg); // 注册
+void login(int fd, struct Message *msg); // 登录
+void logout(int fd, struct Message *msg); // 用户下线
 
 void sys_err(const char *str)
 {
@@ -16,27 +21,39 @@ void sys_err(const char *str)
 }
 void *thread(void *arg) // 子线程操作程序
 {
-
-    // 处理程序
-    char buf[BUFSIZ];           // 默认缓冲区，大小是8192
-    int new_fd = *((int *)arg); // 先把void指针转换为int指针，然后再解引用
-    free(arg);                  // 子线程获取到套接字的值之后就可以删掉堆区内存
+    char buf[BUFSIZ]; // 默认缓冲区，大小是8192
+    struct Message msg;
+    int fd = *((int *)arg); // 先把void指针转换为int指针，然后再解引用
+    free(arg); // 子线程获取到套接字的值之后就可以删掉堆区内存
+    
     while (1)
     {
-        int ret = read(new_fd, buf, sizeof(buf)); // read返回读到的字节大小
-        if (ret == -1)                            // 读取出错
+        int ret = read(fd, &msg, sizeof(msg)); // 用msg来接收客户端给服务器发送的消息
+        if (ret == -1) // 读取出错
         {
             perror("read error");
-            break;
+            close(fd);
+            return;
         }
         if (ret == 0) // 客户端关闭连接
         {
             printf("客户端关闭连接\n");
-            break;
+            close(fd);
+            return;
         }
-        write(1, buf, ret); // 读取到数据就打印到标准输出并写回给客户端
+        switch (msg.cmd) // 根据客户端发送过来的消息命令进行处理
+        {
+            case REGISTE:
+                registe(fd, &msg); break;
+            case LOGIN:
+                login(fd, &msg); break;
+            case LOGOUT:
+                logout(fd, &msg); return; // 直接结束该通信的线程
+            default:
+                break; 
+        }
     }
-    close(new_fd); // 出错或者关闭连接之后会跳出循环执行这句
+    
 }
 int main()
 {
@@ -53,7 +70,9 @@ int main()
         sys_err("bind error");
     if (listen(fd, 128) == -1)
         sys_err("listen error");
-
+    // 创建数据库
+    database_init();
+    
     while (1)
     {
         int new_fd;                     // 接收accept返回的用来通信的套接字句柄
@@ -79,4 +98,69 @@ int main()
     }
     close(fd); // 主线程结束循环后，就可以关闭用来监听的套接字了（用来通讯的套接字由子线程关闭）
     return 0;
+}
+// 注册
+void registe(int fd, struct Message *msg)
+{
+    struct Message msg_back; // 发送回客户端的消息
+    msg_back.cmd = REGISTE;
+    if (is_user_registered(msg->name) == 1) // 如果注册过则不进行注册
+    {
+        printf("name has exist\n");
+        msg_back.state = NAME_EXIST;
+    }
+    else
+    {
+        add_user(msg->name, msg->data);
+        printf("register success\n");
+        msg_back.state = OP_OK;
+    }
+    write(fd, &msg_back, sizeof(msg_back)); // 发送操作结果给客户端
+}
+// 登录
+void login(int fd, struct Message *msg)
+{
+    struct Message msg_back; // 发送回客户端的消息
+    msg_back.cmd = LOGIN;
+    // 查询用户是否注册
+    if (is_user_registered(msg->name) != 1)
+    {
+        printf("Username not register\n");
+        msg_back.state = USER_NOT_REGIST;
+        write(fd, &msg_back, sizeof(msg_back));
+        return;
+    }
+    // 检查密码是否正确
+    if (password_check(msg->name, msg->data) == 0)
+        printf("密码正确\n");
+    else
+    {
+        printf("密码错误\n");
+        msg_back.state = PASSWORD_WRONG;
+        write(fd, &msg_back, sizeof(msg_back));
+        return;
+    }
+    // 判断用户是否已上线（一个账号只能有一个客户端同时使用）
+    if (user_if_online(msg->name) == 1)
+    {
+        printf("用户已上线\n");
+        msg_back.state = USER_LOGED;
+        write(fd, &msg_back, sizeof(msg_back));
+        return;
+    }
+    // 注册且密码正确就登录成功，把数据库中的fd字段改成该套接字文件的值
+    if (user_on_off(fd, msg->name, 1) == 0) 
+    {
+        msg_back.state = OP_OK;
+        write(fd, &msg_back, sizeof(msg_back));
+    }
+    else
+        printf("用户上线失败"); // 基本不会上线失败，这条消息是打印给服务器端的（以防万一）
+}
+// 用户下线
+void logout(int fd, struct Message *msg)
+{
+    user_on_off(fd, msg->name, 0); // 基本不会失败
+    printf("用户%d下线\n", msg->name);
+    close(fd);
 }
