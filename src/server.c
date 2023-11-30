@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -170,5 +171,11 @@ static void logout(int fd, struct Message *msg)
 // 发送公聊消息
 static void global_chat(int fd, struct Message *msg)
 {
+    // 消息是"-1"表示退出聊天
+    if (strcmp(msg->data, "-1") == 0)
+    {
+        leave_chat(fd);
+        return;
+    }
     broadcast(msg->name, fd, msg->data);
 }

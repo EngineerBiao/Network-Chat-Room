@@ -20,7 +20,10 @@ static void list_online_user(); // 列出在线用户
 int fd; // 由于其他函数也要用该文件描述符，所以直接定义为全局变量
 int login_f = -1; // -1表示未登录，1表示已登录
 int chat_flag = 0; // 1表示进入公聊或私聊状态，0表示没有聊天
-int chat_line = 1; // 聊天消息显示的行数
+int message_line = 2; // 聊天消息的行数
+pthread_mutex_t mutex;
+pthread_cond_t cond;
+
 // 由于只有一个线程，所以msg直接设为文件作用域
 struct Message msg, msg_back; // msg是message的简写，msg_back用来获取服务端发送回的消息
 
@@ -29,24 +32,34 @@ void sys_err(const char *str)
     perror(str);
     exit(1);
 }
-void *readThread(void *arg) // 子线程实时接收服务端的数据（登录后）
+void *readThread(void *arg) // 子线程实时接收服务端发送的数据（处于聊天模式后）
 {
     char buf[BUFSIZ];       // 默认缓冲区，大小是8192-
     while (1) // 循环实时接收服务器发来的聊天消息
     {
-        if (login_f == -1) // 登录后才接收数据，这里使用轮询的方法（看后期能不能改进效率）
-            continue;
-        if (chat_flag != 1) // 处于聊天模式才接收数据
-            continue;
-        int ret = read(fd, buf, sizeof(buf)); // read返回读到的字节大小
-        if (ret == -1)
+        /* if (chat_flag != 1) // 处于聊天模式才接收数据
+            continue;*/
+        // 上面使用轮询的方法不利于程序效率，下面使用条件变量来确保进入聊天模式时才激活该线程
+        pthread_mutex_lock(&mutex);
+        while (chat_flag != 1) // 不是聊天状态时，进入循环来等待唤醒
+            pthread_cond_wait(&cond, &mutex); // 先解锁并等待唤醒，唤醒之后会重新申请锁然后运行下面代码
+        pthread_mutex_unlock(&mutex);
+        
+        if (read(fd, buf, sizeof(buf)) == -1)
             sys_err("read error");
-        if (chat_line >= 15)
+        // 可能在read期间用户退出了聊天室，此时需要重新等待唤醒
+        if (chat_flag != 1)
+        {
+            memset(buf, '\0', sizeof(buf)); // 清空缓冲区
+            continue;
+        }
+        if (message_line >= 15) // 当聊天消息显示到第16行就清屏
         {
             system("clear");
-            chat_line = 1;
+            printf("\t\t公共聊天室（输入-1退出）");
+            message_line = 2;
         }
-        printf("\e[%d;1H", chat_line++);
+        printf("\e[%d;1H", message_line++); // 需要先移动光标，具体移动方法看GPT
         printf("%s", buf);
         memset(buf, '\0', sizeof(buf)); // 输出之后要清空缓冲区
     }
@@ -68,7 +81,13 @@ int main()
     int *arg_fd = (int *)malloc(sizeof(int));
     *arg_fd = fd;
     
-    // 创建子线程
+    // 创建子线程前先初始化锁和条件变量
+    if (pthread_mutex_init(&mutex, NULL) != 0)
+        sys_err("mutex init error");
+    if (pthread_cond_init(&cond, NULL) != 0)
+        sys_err("cond init error");
+
+    // 创建用来实时接收消息的子线程
     pthread_t tid;
     if (pthread_create(&tid, NULL, readThread, NULL) != 0)
         sys_err("thread create error");
@@ -141,29 +160,10 @@ int main()
                 break;
         }
     }
-    
-    // 循环读取键盘输入
-    // char buf[BUFSIZ]; // BUFSIZ是标准缓冲区大小
-    // char cha;         // 用来接收键盘的字符输入
-    // while (1)
-    // {
-        
-    //     int i = 0;
-    //     printf("input message: ");
-    //     while (scanf("%c", &cha)) // 循环读取字符
-    //     {
-    //         buf[i++] = cha;
-    //         if (cha == '\n') // 遇到换行符就写入数据
-    //             break;
-    //     }
-    //     if (write(fd, buf, strlen(buf)) == -1)
-    //     {
-    //         close(fd);
-    //         sys_err("write error");
-    //     }
-    //     memset(buf, '\0', i); // 每次写完后要清空buf缓冲区
-    // }
+    // 释放相关资源
     close(fd);
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
     return 0;
 }
 // 注册请求函数
@@ -232,14 +232,20 @@ static void global_chat()
 {
     msg.cmd = BROADCAST;
     system("clear"); // 清屏
+    printf("\t\t公共聊天室（输入-1退出）\n");
+    // 唤醒实时接收信息的子线程(这里唤醒不需要持有锁，因为没有其他线程会更改聊天标志)
+    pthread_cond_signal(&cond);
     while (1)
     {
         scanf("%s", msg.data);
+        write(fd, &msg, sizeof(msg)); // -1也是先发送给服务器来更新聊天状态
         if (strcmp(msg.data, "-1") == 0)
             break;
-        write(fd, &msg, sizeof(msg));
     }
+    // 退出聊天室需要更新聊天状态、重置聊天消息的行数、清屏
     chat_flag = 0;
+    message_line = 2;
+    system("clear");
 }
 static void private()
 {

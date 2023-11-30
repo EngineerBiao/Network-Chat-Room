@@ -20,6 +20,7 @@ int password_check(int name, char *password); // 检查密码是否正确，正�
 int user_on_off(int fd, int name, int on_off); // 更新用户上线或下线状态，成功返回0，失败返回-1
 int user_if_online(int name); // 判断用户是否在线，在线返回1，不在线返回-1，未注册返回-2
 int broadcast(int name, int fd, char *message); // 向所有用户发送公聊消息，name和fd是发送消息的客户端用户名和fd，message是消息
+int leave_chat(int fd); // 退出聊天状态
 
 #define DATABASE_NAME "user.db"
 #define TABLE_NAME "user"

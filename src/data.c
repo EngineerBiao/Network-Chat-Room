@@ -206,4 +206,18 @@ int broadcast(int name, int fd, char *message)
     }
     return 0;
 }
-
+// 退出聊天状态
+int leave_chat(int fd)
+{
+    char sql[1024];
+    char *errmsg;
+    snprintf(sql, sizeof(sql), "update %s set chat=0 where fd=%d;", TABLE_NAME, fd);
+    int ret = sqlite3_exec(db, sql, NULL, NULL, &errmsg);
+    if (ret != 0)
+    {
+        printf("聊天状态退出错误: %s\n", sqlite3_errmsg(db));
+        sqlite3_free(errmsg); // 释放错误信息内存
+        return -1;
+    }
+    return 0;
+}
