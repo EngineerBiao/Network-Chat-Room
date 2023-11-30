@@ -9,8 +9,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(SRC_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/src/server.c ${CMAKE_CURRENT_SOURCE_DIR}/src/data.c)
 set(SRC_CLIENT ${CMAKE_CURRENT_SOURCE_DIR}/src/client.c ${CMAKE_CURRENT_SOURCE_DIR}/src/data.c)
 
-#添加编译参数，用到线程库
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+#添加编译参数：1、线程库；2、gdb
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -g")
 #生成可执行文件的目标
 add_executable(server ${SRC_SERVER})
 add_executable(client ${SRC_CLIENT})

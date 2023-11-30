@@ -3,7 +3,7 @@
 
 /* 客户端和服务端之间通讯的消息规定 */
 
-#define SERVER_PORT 9527 // 服务器端口号
+#define SERVER_PORT 9525 // 服务器端口号
 
 // C/S通信数据格式
 struct Message {
@@ -17,7 +17,7 @@ struct Message {
 #define REGISTE 0X00000004    // 注册账号
 #define LOGIN 0X00000008      // 登录
 #define LOGOUT 0X00000020     // 下线并退出
-#define BROADCAST 0X00000001  // 广播数据
+#define BROADCAST 0X00000001  // 广播
 #define PRIVATE 0X00000002    // 私聊
 #define ONLINEUSER 0X00000010 // 显示在线用户
 

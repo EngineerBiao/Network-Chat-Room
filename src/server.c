@@ -10,9 +10,10 @@
 #include "chat.h"
 #include "data.h"
 
-void registe(int fd, struct Message *msg); // 注册
-void login(int fd, struct Message *msg); // 登录
-void logout(int fd, struct Message *msg); // 用户下线
+static void registe(int fd, struct Message *msg); // 注册
+static void login(int fd, struct Message *msg); // 登录
+static void logout(int fd, struct Message *msg); // 用户下线
+static void global_chat(); // 公聊
 
 void sys_err(const char *str)
 {
@@ -49,6 +50,8 @@ void *thread(void *arg) // 子线程操作程序
                 login(fd, &msg); break;
             case LOGOUT:
                 logout(fd, &msg); return; // 直接结束该通信的线程
+            case BROADCAST:
+                global_chat(fd, &msg); break;
             default:
                 break; 
         }
@@ -70,7 +73,7 @@ int main()
         sys_err("bind error");
     if (listen(fd, 128) == -1)
         sys_err("listen error");
-    // 创建数据库
+    // 初始化数据库
     database_init();
     
     while (1)
@@ -100,7 +103,7 @@ int main()
     return 0;
 }
 // 注册
-void registe(int fd, struct Message *msg)
+static void registe(int fd, struct Message *msg)
 {
     struct Message msg_back; // 发送回客户端的消息
     msg_back.cmd = REGISTE;
@@ -118,7 +121,7 @@ void registe(int fd, struct Message *msg)
     write(fd, &msg_back, sizeof(msg_back)); // 发送操作结果给客户端
 }
 // 登录
-void login(int fd, struct Message *msg)
+static void login(int fd, struct Message *msg)
 {
     struct Message msg_back; // 发送回客户端的消息
     msg_back.cmd = LOGIN;
@@ -158,9 +161,14 @@ void login(int fd, struct Message *msg)
         printf("用户上线失败"); // 基本不会上线失败，这条消息是打印给服务器端的（以防万一）
 }
 // 用户下线
-void logout(int fd, struct Message *msg)
+static void logout(int fd, struct Message *msg)
 {
     user_on_off(fd, msg->name, 0); // 基本不会失败
     printf("用户%d下线\n", msg->name);
     close(fd);
+}
+// 发送公聊消息
+static void global_chat(int fd, struct Message *msg)
+{
+    broadcast(msg->name, fd, msg->data);
 }

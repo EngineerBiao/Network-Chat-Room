@@ -10,16 +10,17 @@
 #include <pthread.h> // POSIX线程库，由于该库不是Linux默认库，所以要在编译时加-lpthread参数才能完成链接
 #include "chat.h"
 
-int registe(); // 注册
-int login(); // 登录
-void logout(); // 下线  
-void broadcast(); // 广播
-void private(); // 私聊
-void list_online_user(); // 列出在线用户
-
+static int registe(); // 注册
+static int login(); // 登录
+static void logout(); // 下线
+static void global_chat(); // 公聊
+static void private();     // 私聊
+static void list_online_user(); // 列出在线用户
 
 int fd; // 由于其他函数也要用该文件描述符，所以直接定义为全局变量
 int login_f = -1; // -1表示未登录，1表示已登录
+int chat_flag = 0; // 1表示进入公聊或私聊状态，0表示没有聊天
+int chat_line = 1; // 聊天消息显示的行数
 // 由于只有一个线程，所以msg直接设为文件作用域
 struct Message msg, msg_back; // msg是message的简写，msg_back用来获取服务端发送回的消息
 
@@ -28,17 +29,26 @@ void sys_err(const char *str)
     perror(str);
     exit(1);
 }
-void *readThread(void *arg) // 子线程接收服务端的数据
+void *readThread(void *arg) // 子线程实时接收服务端的数据（登录后）
 {
-    char buf[BUFSIZ];       // 默认缓冲区，大小是8192
-    while (1)
+    char buf[BUFSIZ];       // 默认缓冲区，大小是8192-
+    while (1) // 循环实时接收服务器发来的聊天消息
     {
-        if (login_f == -1) // 只有登录后才接收数据，这里使用轮询的方法（看后期能不能改进效率）
+        if (login_f == -1) // 登录后才接收数据，这里使用轮询的方法（看后期能不能改进效率）
+            continue;
+        if (chat_flag != 1) // 处于聊天模式才接收数据
             continue;
         int ret = read(fd, buf, sizeof(buf)); // read返回读到的字节大小
         if (ret == -1)
             sys_err("read error");
-        write(1, buf, ret); // 打印读取到的数据到标准输出
+        if (chat_line >= 15)
+        {
+            system("clear");
+            chat_line = 1;
+        }
+        printf("\e[%d;1H", chat_line++);
+        printf("%s", buf);
+        memset(buf, '\0', sizeof(buf)); // 输出之后要清空缓冲区
     }
 }
 int main()
@@ -80,6 +90,8 @@ int main()
             printf("\t 5、在线列表\n");
         }
         printf("\t 0、退出\n");
+        
+        printf("请选择功能：");
         scanf("%d", &num);
         if (num == 0)
         {
@@ -116,7 +128,8 @@ int main()
                 ret = login();
                 break;
             case 3:
-                broadcast();
+                chat_flag = 1;
+                global_chat();
                 break;
             case 4:
                 private();
@@ -124,7 +137,7 @@ int main()
             case 5:
                 list_online_user();
                 break;
-            default:    
+            default:
                 break;
         }
     }
@@ -154,7 +167,7 @@ int main()
     return 0;
 }
 // 注册请求函数
-int registe()
+static int registe()
 {
     msg.cmd = REGISTE;
     printf("input Username: ");
@@ -176,7 +189,7 @@ int registe()
     }
 }
 // 登录请求函数，成功返回0，失败返回-1
-int login()
+static int login()
 {
     msg.cmd = LOGIN;
     printf("input your name: ");
@@ -208,21 +221,31 @@ int login()
     }
 }
 // 账号下线，基本都会成功，所以无需返回值或者检查
-void logout()
+static void logout()
 {
     msg.cmd = LOGOUT;
     write(fd, &msg, sizeof(msg));
     close(fd);
 }
-void broadcast()
+// 公聊
+static void global_chat()
+{
+    msg.cmd = BROADCAST;
+    system("clear"); // 清屏
+    while (1)
+    {
+        scanf("%s", msg.data);
+        if (strcmp(msg.data, "-1") == 0)
+            break;
+        write(fd, &msg, sizeof(msg));
+    }
+    chat_flag = 0;
+}
+static void private()
 {
     
 }
-void private()
-{
-    
-}
-void list_online_user()
+static void list_online_user()
 {
     
 }

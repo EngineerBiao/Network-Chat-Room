@@ -1,1 +1,1 @@
-/usr/bin/cc  -pthread  -rdynamic CMakeFiles/server.dir/src/server.c.o CMakeFiles/server.dir/src/data.c.o  -o ../bin/server  -lsqlite3 
+/usr/bin/cc  -pthread -g  -rdynamic CMakeFiles/server.dir/src/server.c.o CMakeFiles/server.dir/src/data.c.o  -o ../bin/server  -lsqlite3 
