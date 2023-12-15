@@ -10,20 +10,6 @@
 
 ../inc/data.h
 
-/home/biao/tcp-socket/2网络聊天室/src/data.c
-stdio.h
--
-stdlib.h
--
-sqlite3.h
--
-unistd.h
--
-string.h
--
-data.h
-/home/biao/tcp-socket/2网络聊天室/src/data.h
-
 /home/biao/tcp-socket/2网络聊天室/src/server.c
 stdio.h
 -

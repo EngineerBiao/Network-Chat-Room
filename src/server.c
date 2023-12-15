@@ -11,10 +11,13 @@
 #include "chat.h"
 #include "data.h"
 
-static void registe(int fd, struct Message *msg); // 注册
-static void login(int fd, struct Message *msg); // 登录
-static void logout(int fd, struct Message *msg); // 用户下线
-static void global_chat(); // 公聊
+static void registe(int fd, struct Message *msg);      // 注册
+static void login(int fd, struct Message *msg);        // 登录
+static void logout(int fd, struct Message *msg);       // 用户下线
+static void global_chat(int fd, struct Message *msg);  // 公聊
+static void online_user_status(int fd);                // 列出在线用户及其聊天状态
+static int choose_user(struct Message *msg);           // 返回用户端选择私聊的用户名的套接字
+static void private_chat(int fd, int chat_fd, struct Message *msg); // 私聊
 
 void sys_err(const char *str)
 {
@@ -27,7 +30,8 @@ void *thread(void *arg) // 子线程操作程序
     struct Message msg;
     int fd = *((int *)arg); // 先把void指针转换为int指针，然后再解引用
     free(arg); // 子线程获取到套接字的值之后就可以删掉堆区内存
-    
+    int chat_fd; // 私聊用的套接字
+
     while (1)
     {
         int ret = read(fd, &msg, sizeof(msg)); // 用msg来接收客户端给服务器发送的消息
@@ -51,13 +55,21 @@ void *thread(void *arg) // 子线程操作程序
                 login(fd, &msg); break;
             case LOGOUT:
                 logout(fd, &msg); return; // 直接结束该通信的线程
+            case STARTCHAT: // 进入聊天状态
+                set_chat(fd, 1); break;
             case BROADCAST:
                 global_chat(fd, &msg); break;
+            case ONLINEUSER:
+                online_user_status(fd); break;
+            case CHOOSE:
+                set_chat(fd, 1); // 更新数据库中的聊天状态
+                chat_fd = choose_user(&msg); break;
+            case PRIVATE:
+                private_chat(fd, chat_fd, &msg); break;
             default:
                 break; 
         }
     }
-    
 }
 int main()
 {
@@ -107,7 +119,6 @@ int main()
 static void registe(int fd, struct Message *msg)
 {
     struct Message msg_back; // 发送回客户端的消息
-    msg_back.cmd = REGISTE;
     if (is_user_registered(msg->name) == 1) // 如果注册过则不进行注册
     {
         printf("name has exist\n");
@@ -125,7 +136,6 @@ static void registe(int fd, struct Message *msg)
 static void login(int fd, struct Message *msg)
 {
     struct Message msg_back; // 发送回客户端的消息
-    msg_back.cmd = LOGIN;
     // 查询用户是否注册
     if (is_user_registered(msg->name) != 1)
     {
@@ -152,7 +162,7 @@ static void login(int fd, struct Message *msg)
         write(fd, &msg_back, sizeof(msg_back));
         return;
     }
-    // 注册且密码正确就登录成功，把数据库中的fd字段改成该套接字文件的值
+    // 已注册且密码正确，把数据库中的fd字段改成该套接字文件的值
     if (user_on_off(fd, msg->name, 1) == 0) 
     {
         msg_back.state = OP_OK;
@@ -174,8 +184,48 @@ static void global_chat(int fd, struct Message *msg)
     // 消息是"-1"表示退出聊天
     if (strcmp(msg->data, "-1") == 0)
     {
-        leave_chat(fd);
+        set_chat(fd, 0); // 更新数据库中的聊天状态
+        char data[64];
+        snprintf(data, sizeof(data), "用户%d退出聊天室", msg->name);
+        broadcast(msg->name, fd, data); // 发送消息告知其他用户
         return;
     }
     broadcast(msg->name, fd, msg->data);
+}
+// 列出在线用户及其聊天状态
+static void online_user_status(int fd)
+{
+    struct Message msg_back;
+    user_status(fd);
+    // 执行完后发送ONLINEUSER_OVER告诉客户端已列举结束
+    msg_back.state = ONLINEUSER_OVER;
+    if (write(fd, &msg_back, sizeof(msg_back)) == -1)
+        printf("发送消息失败\n");
+}
+// 返回用户端选择私聊的用户名的套接字
+static int choose_user(struct Message *msg)
+{
+    int fd = find_fd(atoi(msg->data));
+    printf("用户%d选择私聊用户%s，套接字为%d\n", msg->name, msg->data, fd);
+    return fd;
+}
+// 私聊
+static void private_chat(int fd, int chat_fd, struct Message *msg)
+{
+    // 消息是"-1"表示退出聊天
+    if (strcmp(msg->data, "-1") == 0)
+    {
+        // 发送消息给自己，防止客户端子线程阻塞
+        char *data = "退出聊天室";
+        write(fd, data, strlen(data));
+        set_chat(fd, 0); // 更新数据库中的聊天状态
+        return;
+    }
+    // 对fd和chat_fd发送消息（对自己也发送的原因是让聊天消息在双方画面上相同）
+    char message[1024];
+    snprintf(message, sizeof(message), "[Message] User %d send message: %s\n", msg->name, msg->data);
+    if (write(chat_fd, message, strlen(message)) == -1)
+        printf("write error");
+    if (write(fd, message, strlen(message)) == -1)
+        printf("write error");
 }

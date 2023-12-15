@@ -4,6 +4,7 @@
 CMakeFiles/client.dir/src/client.c.o: ../inc/chat.h
 CMakeFiles/client.dir/src/client.c.o: ../src/client.c
 
+CMakeFiles/client.dir/src/data.c.o: ../inc/chat.h
 CMakeFiles/client.dir/src/data.c.o: ../inc/data.h
 CMakeFiles/client.dir/src/data.c.o: ../src/data.c
 
