@@ -276,8 +276,10 @@ static void private()
     // 先列出在线用户及其聊天状态
     online_user_status();
     // 用户选择要聊天的对象
-    printf("请选择要私聊的用户名：");
+    printf("请选择要私聊的用户名(输入自己表示返回)：");
     scanf("%s", msg.data);
+    if (msg.name == atoi(msg.data))
+        return;
     msg.cmd = CHOOSE;
     write(fd, &msg, sizeof(msg));
     
