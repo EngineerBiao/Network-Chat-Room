@@ -63,7 +63,7 @@ void *thread(void *arg) // 子线程操作程序
                 online_user_status(fd); break;
             case CHOOSE:
                 set_chat(fd, 1); // 更新数据库中的聊天状态
-                chat_fd = choose_user(&msg); break;
+                chat_fd = choose_user(&msg); break; // 获取客户端选择的聊天用户的套接字
             case PRIVATE:
                 private_chat(fd, chat_fd, &msg); break;
             default:

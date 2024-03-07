@@ -18,10 +18,10 @@ static void global_chat(); // 公聊
 static void private();     // 私聊
 static void online_user_status(); // 列出在线用户
 
-int fd; // 由于其他函数也要用该文件描述符，所以直接定义为全局变量
+int fd; // 其他函数也要用该文件描述符，所以直接定义为全局变量
 int login_f = -1; // 用来控制菜单显示，-1表示未登录，1表示已登录，
 int chat_flag = 0; // 0表示未进入聊天状态，1表示聊天状态
-int message_line = 2; // 聊天消息的行数
+int message_line = 2; // 聊天消息的行号
 pthread_mutex_t mutex;
 pthread_cond_t cond;
 
