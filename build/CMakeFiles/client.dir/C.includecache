@@ -8,7 +8,9 @@
 
 ../inc/chat.h
 
-/home/biao/tcp-socket/2网络聊天室/src/client.c
+../inc/data.h
+
+/home/biao/Network-Chat-Room/src/client.c
 stdio.h
 -
 stdlib.h
@@ -30,5 +32,21 @@ string.h
 pthread.h
 -
 chat.h
-/home/biao/tcp-socket/2网络聊天室/src/chat.h
+/home/biao/Network-Chat-Room/src/chat.h
+
+/home/biao/Network-Chat-Room/src/data.c
+stdio.h
+-
+stdlib.h
+-
+sqlite3.h
+-
+unistd.h
+-
+string.h
+-
+data.h
+/home/biao/Network-Chat-Room/src/data.h
+chat.h
+/home/biao/Network-Chat-Room/src/chat.h
 

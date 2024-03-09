@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/biao/tcp-socket/2网络聊天室/src/data.c" "/home/biao/tcp-socket/2网络聊天室/build/CMakeFiles/server.dir/src/data.c.o"
-  "/home/biao/tcp-socket/2网络聊天室/src/server.c" "/home/biao/tcp-socket/2网络聊天室/build/CMakeFiles/server.dir/src/server.c.o"
+  "/home/biao/Network-Chat-Room/src/data.c" "/home/biao/Network-Chat-Room/build/CMakeFiles/server.dir/src/data.c.o"
+  "/home/biao/Network-Chat-Room/src/server.c" "/home/biao/Network-Chat-Room/build/CMakeFiles/server.dir/src/server.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

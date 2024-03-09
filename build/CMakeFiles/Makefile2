@@ -44,10 +44,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/biao/tcp-socket/2网络聊天室
+CMAKE_SOURCE_DIR = /home/biao/Network-Chat-Room
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/biao/tcp-socket/2网络聊天室/build
+CMAKE_BINARY_DIR = /home/biao/Network-Chat-Room/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -76,14 +76,14 @@ clean: CMakeFiles/server.dir/clean
 CMakeFiles/client.dir/all:
 	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/depend
 	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/biao/tcp-socket/2网络聊天室/build/CMakeFiles --progress-num=1,2,3 "Built target client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/biao/Network-Chat-Room/build/CMakeFiles --progress-num=1,2,3 "Built target client"
 .PHONY : CMakeFiles/client.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/client.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/tcp-socket/2网络聊天室/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/Network-Chat-Room/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/client.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/tcp-socket/2网络聊天室/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/Network-Chat-Room/build/CMakeFiles 0
 .PHONY : CMakeFiles/client.dir/rule
 
 # Convenience name for target.
@@ -103,14 +103,14 @@ CMakeFiles/client.dir/clean:
 CMakeFiles/server.dir/all:
 	$(MAKE) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/depend
 	$(MAKE) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/biao/tcp-socket/2网络聊天室/build/CMakeFiles --progress-num=4,5,6 "Built target server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/biao/Network-Chat-Room/build/CMakeFiles --progress-num=4,5,6 "Built target server"
 .PHONY : CMakeFiles/server.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/server.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/tcp-socket/2网络聊天室/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/Network-Chat-Room/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/server.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/tcp-socket/2网络聊天室/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/biao/Network-Chat-Room/build/CMakeFiles 0
 .PHONY : CMakeFiles/server.dir/rule
 
 # Convenience name for target.

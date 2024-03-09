@@ -21,6 +21,7 @@
 ```
 sudo apt install cmake
 sudo apt install sqlite3
+sudo apt-get install libsqlite3-dev
 ```
 
 2. 复制工程，进入build目录

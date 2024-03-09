@@ -10,7 +10,7 @@
 
 ../inc/data.h
 
-/home/biao/tcp-socket/2网络聊天室/src/server.c
+/home/biao/Network-Chat-Room/src/server.c
 stdio.h
 -
 string.h
@@ -29,10 +29,12 @@ unistd.h
 -
 arpa/inet.h
 -
+sys/epoll.h
+-
 pthread.h
 -
 chat.h
-/home/biao/tcp-socket/2网络聊天室/src/chat.h
+/home/biao/Network-Chat-Room/src/chat.h
 data.h
-/home/biao/tcp-socket/2网络聊天室/src/data.h
+/home/biao/Network-Chat-Room/src/data.h
 

@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "data.h": "c",
+        "chat.h": "c"
     }
 }

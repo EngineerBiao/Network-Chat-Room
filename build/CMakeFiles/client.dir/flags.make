@@ -6,5 +6,5 @@ C_FLAGS =  -pthread -g
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/biao/tcp-socket/2网络聊天室/inc 
+C_INCLUDES = -I/home/biao/Network-Chat-Room/inc 
 
