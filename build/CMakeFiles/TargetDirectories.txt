@@ -1,4 +1,0 @@
-/home/biao/Network-Chat-Room/build/CMakeFiles/rebuild_cache.dir
-/home/biao/Network-Chat-Room/build/CMakeFiles/edit_cache.dir
-/home/biao/Network-Chat-Room/build/CMakeFiles/client.dir
-/home/biao/Network-Chat-Room/build/CMakeFiles/server.dir
