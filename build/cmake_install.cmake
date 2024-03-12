@@ -1,4 +1,4 @@
-# Install script for directory: /home/biao/tcp-socket/2网络聊天室
+# Install script for directory: /home/biao/Network-Chat-Room
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/biao/tcp-socket/2网络聊天室/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/biao/Network-Chat-Room/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

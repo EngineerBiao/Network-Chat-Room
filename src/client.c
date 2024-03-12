@@ -49,8 +49,7 @@ void *readThread(void *arg) // 子线程实时接收服务端发送的数据（�
         if (read(fd, buf, sizeof(buf)) == -1) // 读取内容
             sys_err("read error");
         
-        // 用户退出了聊天室，此时需要重新等待唤醒
-        sleep(0.1); // 暂停一会确保主线程那边设置好了chat_flag
+        // 如果用户退出了聊天室，此时需要重新等待唤醒
         if (chat_flag == 0)
         {
             memset(buf, '\0', sizeof(buf)); // 清空缓冲区
